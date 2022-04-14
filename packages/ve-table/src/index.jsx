@@ -956,34 +956,75 @@ export default {
 
         // select cell by direction
         selectCellByDirection({ direction }) {
-            const { colgroups, allRowKeys, cellSelectionKeyData } = this;
+            const {
+                colgroups,
+                allRowKeys,
+                cellSelectionKeyData,
+                cellSelectionOption,
+                isEditCell,
+            } = this;
 
             const { rowKey, colKey } = cellSelectionKeyData;
 
             let columnIndex = colgroups.findIndex((x) => x.key === colKey);
             let rowIndex = allRowKeys.indexOf(rowKey);
-
             if (direction === CELL_SELECTION_DIRECTION.LEFT) {
-                if (columnIndex > 0) {
-                    let nextColumn = colgroups[columnIndex - 1];
+                while (columnIndex > 0) {
+                    columnIndex -= 1;
+                    let nextColumn = colgroups[columnIndex];
+                    if (
+                        cellSelectionOption &&
+                        cellSelectionOption.edit &&
+                        !isEditCell(nextColumn.key, rowKey)
+                    ) {
+                        continue;
+                    }
                     this.cellSelectionKeyData.colKey = nextColumn.key;
                     this.columnToVisible(nextColumn);
+                    break;
                 }
             } else if (direction === CELL_SELECTION_DIRECTION.RIGHT) {
-                if (columnIndex < colgroups.length - 1) {
-                    let nextColumn = colgroups[columnIndex + 1];
+                while (columnIndex < colgroups.length - 1) {
+                    columnIndex += 1;
+                    let nextColumn = colgroups[columnIndex];
+                    if (
+                        cellSelectionOption &&
+                        cellSelectionOption.edit &&
+                        !isEditCell(nextColumn.key, rowKey)
+                    ) {
+                        continue;
+                    }
                     this.cellSelectionKeyData.colKey = nextColumn.key;
                     this.columnToVisible(nextColumn);
+                    break;
                 }
             } else if (direction === CELL_SELECTION_DIRECTION.UP) {
-                if (rowIndex > 0) {
-                    const nextRowKey = allRowKeys[rowIndex - 1];
+                while (rowIndex > 0) {
+                    rowIndex -= 1;
+                    const nextRowKey = allRowKeys[rowIndex];
+                    if (
+                        cellSelectionOption &&
+                        cellSelectionOption.edit &&
+                        !isEditCell(colKey, nextRowKey)
+                    ) {
+                        continue;
+                    }
                     this.rowToVisible(KEY_CODES.ARROW_UP, nextRowKey);
+                    break;
                 }
             } else if (direction === CELL_SELECTION_DIRECTION.DOWN) {
-                if (rowIndex < allRowKeys.length - 1) {
-                    const nextRowKey = allRowKeys[rowIndex + 1];
+                while (rowIndex < allRowKeys.length - 1) {
+                    rowIndex += 1;
+                    const nextRowKey = allRowKeys[rowIndex];
+                    if (
+                        cellSelectionOption &&
+                        cellSelectionOption.edit &&
+                        !isEditCell(colKey, nextRowKey)
+                    ) {
+                        continue;
+                    }
                     this.rowToVisible(KEY_CODES.ARROW_DOWN, nextRowKey);
+                    break;
                 }
             }
         },
@@ -1654,6 +1695,20 @@ export default {
             return this.colgroups.some((x) => x.key === colKey && x.edit);
         },
 
+        // is edit cell
+        isEditCell(colKey, rowKey) {
+            return this.colgroups.some(
+                (x) =>
+                    x.key === colKey &&
+                    (typeof x.edit === "function"
+                        ? x.edit({
+                              row: this.tableData[rowKey],
+                              column: x,
+                          })
+                        : x.edit),
+            );
+        },
+
         /*
          * @editCellByClick
          * @desc  recieve td click event
@@ -1666,7 +1721,7 @@ export default {
                 hasEditColumn,
                 editingCell,
                 cellSelectionKeyData,
-                isEditColumn,
+                isEditCell,
             } = this;
 
             if (!editOption) {
@@ -1696,7 +1751,7 @@ export default {
                 this[INSTANCE_METHODS.STOP_EDITING_CELL]();
             }
 
-            if (isDblclick && isEditColumn(colKey)) {
+            if (isDblclick && isEditCell(colKey, rowKey)) {
                 this.enableStopEditing = false;
 
                 this[INSTANCE_METHODS.START_EDITING_CELL]({
@@ -1814,6 +1869,18 @@ export default {
             }
 
             if (!isEmptyValue(rowKey) && !isEmptyValue(colKey)) {
+                if (
+                    cellSelectionOption &&
+                    cellSelectionOption.edit &&
+                    !this.isEditCell(colKey, rowKey)
+                ) {
+                    this.cellSelectionKeyChange({
+                        rowKey: 0,
+                        colKey: 0,
+                    });
+                    return false;
+                }
+
                 this.cellSelectionKeyChange({
                     rowKey,
                     colKey,
