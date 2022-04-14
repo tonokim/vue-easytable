@@ -12,6 +12,7 @@
             :table-data="tableData"
             :editOption="editOption"
             :rowStyleOption="rowStyleOption"
+            :cellSelectionOption="{edit: true}"
             border-y
         />
     </div>
@@ -49,7 +50,7 @@
                         title: "Name",
                         align: "left",
                         width: "15%",
-                        edit: true,
+                        edit: ({ row, column }) => row.name !== "Dickerson",
                     },
                     {
                         field: "date",
@@ -57,7 +58,6 @@
                         title: "Date",
                         align: "left",
                         width: "15%",
-                        edit: true,
                     },
                     {
                         field: "number",
