@@ -1697,12 +1697,15 @@ export default {
 
         // is edit cell
         isEditCell(colKey, rowKey) {
+            const currentRow = this.tableData.find(
+                (x) => x[this.rowKeyFieldName] === rowKey,
+            );
             return this.colgroups.some(
                 (x) =>
                     x.key === colKey &&
                     (typeof x.edit === "function"
                         ? x.edit({
-                              row: this.tableData[rowKey],
+                              row: currentRow,
                               column: x,
                           })
                         : x.edit),
