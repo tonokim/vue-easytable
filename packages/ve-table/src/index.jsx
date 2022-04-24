@@ -884,7 +884,7 @@ export default {
                         // stop editing and stay in current cell
                         else if (ctrlKey) {
                             this[INSTANCE_METHODS.STOP_EDITING_CELL]();
-                        } else if (enableStopEditing) {
+                        } else if (!isCellEditing) {
                             this.enableStopEditing = false;
                             this[INSTANCE_METHODS.START_EDITING_CELL]({
                                 rowKey,
@@ -914,6 +914,7 @@ export default {
                     }
                     case KEY_CODES.SPACE: {
                         if (!isCellEditing) {
+                            this.enableStopEditing = false;
                             // start editing and enter a space
                             this[INSTANCE_METHODS.START_EDITING_CELL]({
                                 rowKey,
@@ -927,6 +928,7 @@ export default {
                     }
                     case KEY_CODES.BACK_SPACE: {
                         if (!isCellEditing) {
+                            this.enableStopEditing = false;
                             // start editing and clear value
                             this[INSTANCE_METHODS.START_EDITING_CELL]({
                                 rowKey,
@@ -940,6 +942,7 @@ export default {
                     }
                     case KEY_CODES.DELETE: {
                         if (!isCellEditing) {
+                            this.enableStopEditing = false;
                             // delete selection cell value
                             this.deleteCellValue();
                             event.preventDefault();
