@@ -809,12 +809,22 @@ export default {
                         } else {
                             direction = CELL_SELECTION_DIRECTION.RIGHT;
                         }
-
                         this.selectCellByDirection({
                             direction,
                         });
-
                         this[INSTANCE_METHODS.STOP_EDITING_CELL]();
+                        if (isCellEditing) {
+                            setTimeout(() => {
+                                const { rowKey, colKey } =
+                                    this.cellSelectionKeyData;
+                                this.enableStopEditing = false;
+                                this[INSTANCE_METHODS.START_EDITING_CELL]({
+                                    rowKey,
+                                    colKey,
+                                });
+                            });
+                        }
+
                         event.preventDefault();
                         break;
                     }
@@ -874,6 +884,12 @@ export default {
                         // stop editing and stay in current cell
                         else if (ctrlKey) {
                             this[INSTANCE_METHODS.STOP_EDITING_CELL]();
+                        } else if (enableStopEditing) {
+                            this.enableStopEditing = false;
+                            this[INSTANCE_METHODS.START_EDITING_CELL]({
+                                rowKey,
+                                colKey,
+                            });
                         }
                         // direction down
                         else {
@@ -885,6 +901,13 @@ export default {
                             this.selectCellByDirection({
                                 direction,
                             });
+                        }
+                        event.preventDefault();
+                        break;
+                    }
+                    case KEY_CODES.ESC: {
+                        if (isCellEditing) {
+                            this[INSTANCE_METHODS.STOP_EDITING_CELL]();
                         }
                         event.preventDefault();
                         break;
@@ -1877,10 +1900,10 @@ export default {
                     cellSelectionOption.edit &&
                     !this.isEditCell(colKey, rowKey)
                 ) {
-                    this.cellSelectionKeyChange({
-                        rowKey: 0,
-                        colKey: 0,
-                    });
+                    // clear cell selection
+                    this.clearCellSelectionKey();
+                    // stop editing cell
+                    this[INSTANCE_METHODS.STOP_EDITING_CELL]();
                     return false;
                 }
 
@@ -2025,6 +2048,9 @@ export default {
             }
 
             const currentColumn = colgroups.find((x) => x.key === colKey);
+            if (!currentColumn) {
+                return;
+            }
             // 当前列是否可编辑
             // if (!currentColumn.edit) {
             //     return false;
