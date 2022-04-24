@@ -433,16 +433,37 @@ export default {
             rawCellValue,
             isCellEditing,
             isEditCellFocus,
+            colgroups,
+            cellSelectionKeyData,
         } = this;
 
         const containerProps = {
             style: containerStyle,
             class: containerClass,
         };
+        const currentColumn = colgroups.find(
+            (x) => x.key === cellSelectionKeyData.colKey,
+        );
+        let textareaStyle = "";
+        if (isCellEditing && currentColumn?.validator) {
+            const currentRow = this.tableData.find(
+                (x) => x[this.rowKeyFieldName] === cellSelectionKeyData.rowKey,
+            );
+            if (
+                !currentColumn.validator({
+                    row: currentRow,
+                    column: currentColumn,
+                    value: rawCellValue,
+                })
+            ) {
+                textareaStyle = "border-color: #F53B2B";
+            }
+        }
 
         const textareaProps = {
             ref: this.textareaInputRef,
             class: textareaClass,
+            style: textareaStyle,
             directives: [
                 {
                     name: "focus",

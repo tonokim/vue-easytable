@@ -32,6 +32,11 @@
                         console.log("cellValueChange row::", row);
                         console.log("cellValueChange column::", column);
                     },
+                    // cell value input
+                    cellValueInput: ({ row, column }) => {
+                        console.log("cellValueInput row::", row);
+                        console.log("cellValueInput column::", column);
+                    },
                 },
                 columns: [
                     {
@@ -51,6 +56,9 @@
                         align: "left",
                         width: "15%",
                         edit: ({ row, column }) => row.name !== "Dickerson",
+                        validator: ({ value }) => {
+                            return value !== "Tom";
+                        },
                     },
                     {
                         field: "date",

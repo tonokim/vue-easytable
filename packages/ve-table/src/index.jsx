@@ -1808,10 +1808,16 @@ export default {
 
         // update editing cell value
         updateEditingCellValue(value) {
-            const { editingCell } = this;
+            const { editingCell, editOption } = this;
             let { row, column } = editingCell;
             row[column.field] = value;
             this.editingCell.row = row;
+            const { cellValueInput } = editOption;
+            cellValueInput &&
+                cellValueInput({
+                    row: row,
+                    column: column,
+                });
         },
 
         /*
