@@ -514,6 +514,32 @@ export default {
                 !isEmptyValue(editingCell.colKey)
             );
         },
+        // is editing cell invalid
+        isCellEditingInValid() {
+            const { editingCell, editOption } = this;
+            if (
+                isEmptyValue(editingCell.rowKey) ||
+                isEmptyValue(editingCell.colKey)
+            ) {
+                return false;
+            }
+            if (editOption?.preventInvalid) {
+                let { row, column } = editingCell;
+                const value = row[column.field];
+                if (!column.validator) return false;
+                if (
+                    column.validator({
+                        row,
+                        column,
+                        value,
+                    })
+                ) {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        },
         // has edit column
         hasEditColumn() {
             return this.colgroups.some((x) => x.edit);
@@ -779,6 +805,7 @@ export default {
                 cellSelectionKeyData,
                 enableStopEditing,
                 isCellEditing,
+                isCellEditingInValid,
             } = this;
 
             const { keyCode, ctrlKey, shiftKey, altKey } = event;
@@ -803,6 +830,10 @@ export default {
                         break;
                     }
                     case KEY_CODES.TAB: {
+                        if (isCellEditingInValid) {
+                            event.preventDefault();
+                            break;
+                        }
                         let direction;
                         if (shiftKey) {
                             direction = CELL_SELECTION_DIRECTION.LEFT;
@@ -868,6 +899,10 @@ export default {
                         break;
                     }
                     case KEY_CODES.ENTER: {
+                        if (!altKey && isCellEditingInValid) {
+                            event.preventDefault();
+                            break;
+                        }
                         let direction;
                         // add new line
                         if (altKey) {
@@ -906,6 +941,10 @@ export default {
                         break;
                     }
                     case KEY_CODES.ESC: {
+                        if (isCellEditingInValid) {
+                            event.preventDefault();
+                            break;
+                        }
                         if (isCellEditing) {
                             this[INSTANCE_METHODS.STOP_EDITING_CELL]();
                         }
@@ -1556,6 +1595,10 @@ export default {
 
             const { cellSelectionKeyData } = this;
 
+            // if (isCellEditingInValid) {
+            //     return false;
+            // }
+
             const { rowKey, colKey } = cellSelectionKeyData;
 
             if (!isEmptyValue(rowKey) && !isEmptyValue(colKey)) {
@@ -1676,7 +1719,9 @@ export default {
          */
         tdContextmenu({ rowData, column }) {
             const { editOption } = this;
-
+            // if (isCellEditingInValid) {
+            //     return;
+            // }
             // cell selection by click
             this.cellSelectionByClick({ rowData, column });
 
@@ -1693,7 +1738,9 @@ export default {
          */
         tdClick({ rowData, column }) {
             const { editOption } = this;
-
+            // if (isCellEditingInValid) {
+            //     return;
+            // }
             // cell selection by click
             this.cellSelectionByClick({ rowData, column });
 
@@ -2240,6 +2287,9 @@ export default {
             },
             nativeOn: {
                 click: () => {
+                    // if (this.isCellEditingInValid) {
+                    //     return;
+                    // }
                     this[INSTANCE_METHODS.STOP_EDITING_CELL]();
                 },
             },
