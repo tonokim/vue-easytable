@@ -1892,6 +1892,7 @@ export default {
             rowKey,
             colKey,
             isScrollToRow = true,
+            isScrollToColumn = true,
         }) {
             const { cellSelectionOption } = this;
 
@@ -1920,10 +1921,12 @@ export default {
                     rowKey,
                     colKey,
                 });
+                if (isScrollToColumn) {
+                    const column = getColumnByColkey(colKey, this.colgroups);
+                    // column to visible
+                    this.columnToVisible(column);
+                }
 
-                const column = getColumnByColkey(colKey, this.colgroups);
-                // column to visible
-                this.columnToVisible(column);
                 // row to visible
                 if (isScrollToRow) {
                     this[INSTANCE_METHODS.SCROLL_TO_ROW_KEY]({ rowKey });

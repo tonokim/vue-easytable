@@ -487,6 +487,9 @@ export default {
 
         const events = {
             click: (e) => {
+                // this.cellClick(e, click);
+            },
+            mousedown: (e) => {
                 this.cellClick(e, click);
             },
             dblclick: (e) => {
