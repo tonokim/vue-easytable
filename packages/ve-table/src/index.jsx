@@ -48,7 +48,7 @@ import { isInputKeyCode } from "../../src/utils/event-key-codes";
 import clickoutside from "../../src/directives/clickoutside";
 import VueDomResizeObserver from "../../src/comps/resize-observer";
 import Hooks from "../../src/utils/hooks-manager";
-import VeContextmenu from "vue-easytable/packages/ve-contextmenu";
+import VeContextmenu from "../../../packages/ve-contextmenu";
 
 const t = createLocale(LOCALE_COMP_NAME);
 
@@ -806,10 +806,10 @@ export default {
                 enableStopEditing,
                 isCellEditing,
                 isCellEditingInValid,
+                rowKeyFieldName,
             } = this;
 
-            const { keyCode, ctrlKey, shiftKey, altKey } = event;
-
+            const { keyCode, ctrlKey, shiftKey, altKey, metaKey } = event;
             const { rowKey, colKey } = cellSelectionKeyData;
 
             const currentColumn = colgroups.find((x) => x.key === colKey);
@@ -861,7 +861,6 @@ export default {
                     }
                     case KEY_CODES.ARROW_RIGHT: {
                         const direction = CELL_SELECTION_DIRECTION.RIGHT;
-
                         if (enableStopEditing) {
                             this.selectCellByDirection({
                                 direction,
@@ -917,8 +916,10 @@ export default {
                             this[INSTANCE_METHODS.STOP_EDITING_CELL]();
                         }
                         // stop editing and stay in current cell
-                        else if (ctrlKey) {
-                            this[INSTANCE_METHODS.STOP_EDITING_CELL]();
+                        else if (ctrlKey || metaKey) {
+                            event.preventDefault();
+                            break;
+                            // this[INSTANCE_METHODS.STOP_EDITING_CELL]();
                         } else if (!isCellEditing) {
                             this.enableStopEditing = false;
                             this[INSTANCE_METHODS.START_EDITING_CELL]({
@@ -1004,7 +1005,15 @@ export default {
 
                         break;
                     }
+
                     default: {
+                        if ((ctrlKey || metaKey) && keyCode === KEY_CODES.C) {
+                            const currentRow = this.tableData.find(
+                                (x) => x[rowKeyFieldName] === rowKey,
+                            );
+                            navigator.clipboard.writeText(currentRow[colKey]);
+                            break;
+                        }
                         // enter text directly
                         if (isInputKeyCode(event)) {
                             this[INSTANCE_METHODS.START_EDITING_CELL]({
@@ -1033,6 +1042,7 @@ export default {
 
             let columnIndex = colgroups.findIndex((x) => x.key === colKey);
             let rowIndex = allRowKeys.indexOf(rowKey);
+            let moved = false;
             if (direction === CELL_SELECTION_DIRECTION.LEFT) {
                 while (columnIndex > 0) {
                     columnIndex -= 1;
@@ -1044,9 +1054,24 @@ export default {
                     ) {
                         continue;
                     }
+                    moved = true;
                     this.cellSelectionKeyData.colKey = nextColumn.key;
                     this.columnToVisible(nextColumn);
                     break;
+                }
+                if (!moved && rowIndex > 0) {
+                    const lastColumn = colgroups[colgroups.length - 1];
+                    this.cellSelectionKeyData.colKey = lastColumn.key;
+                    this.columnToVisible(lastColumn);
+                    const nextRowKey = allRowKeys[rowIndex - 1];
+                    this.rowToVisible(KEY_CODES.ARROW_DOWN, nextRowKey);
+                    if (
+                        cellSelectionOption &&
+                        cellSelectionOption.edit &&
+                        !isEditCell(lastColumn.key, nextRowKey)
+                    ) {
+                        this.selectCellByDirection({ direction });
+                    }
                 }
             } else if (direction === CELL_SELECTION_DIRECTION.RIGHT) {
                 while (columnIndex < colgroups.length - 1) {
@@ -1059,9 +1084,24 @@ export default {
                     ) {
                         continue;
                     }
+                    moved = true;
                     this.cellSelectionKeyData.colKey = nextColumn.key;
                     this.columnToVisible(nextColumn);
                     break;
+                }
+                if (!moved && rowIndex < allRowKeys.length - 1) {
+                    const firstColumn = colgroups[0];
+                    this.cellSelectionKeyData.colKey = firstColumn.key;
+                    this.columnToVisible(firstColumn);
+                    const nextRowKey = allRowKeys[rowIndex + 1];
+                    this.rowToVisible(KEY_CODES.ARROW_DOWN, nextRowKey);
+                    if (
+                        cellSelectionOption &&
+                        cellSelectionOption.edit &&
+                        !isEditCell(firstColumn.key, nextRowKey)
+                    ) {
+                        this.selectCellByDirection({ direction });
+                    }
                 }
             } else if (direction === CELL_SELECTION_DIRECTION.UP) {
                 while (rowIndex > 0) {
@@ -1074,6 +1114,7 @@ export default {
                     ) {
                         continue;
                     }
+                    moved = true;
                     this.rowToVisible(KEY_CODES.ARROW_UP, nextRowKey);
                     break;
                 }
@@ -1088,6 +1129,7 @@ export default {
                     ) {
                         continue;
                     }
+                    moved = true;
                     this.rowToVisible(KEY_CODES.ARROW_DOWN, nextRowKey);
                     break;
                 }

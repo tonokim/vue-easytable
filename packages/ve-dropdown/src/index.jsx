@@ -1,6 +1,6 @@
 import clickoutside from "../../src/directives/clickoutside.js";
-import VeCheckbox from "vue-easytable/packages/ve-checkbox";
-import VeRadio from "vue-easytable/packages/ve-radio";
+import VeCheckbox from "../../../packages/ve-checkbox";
+import VeRadio from "../../../packages/ve-radio";
 import { COMPS_NAME, EMIT_EVENTS } from "./util/constant";
 import { clsName } from "./util/index";
 import { getRandomId } from "../../src/utils/random";

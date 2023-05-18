@@ -1,7 +1,7 @@
-import VeDropdown from "vue-easytable/packages/ve-dropdown";
+import VeDropdown from "../../../packages/ve-dropdown";
 import { COMPS_NAME, EMIT_EVENTS } from "./util/constant";
 import { clsName } from "./util/index";
-import VeIcon from "vue-easytable/packages/ve-icon";
+import VeIcon from "../../../packages/ve-icon";
 import { ICON_NAMES } from "../../src/utils/constant";
 
 export default {

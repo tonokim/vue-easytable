@@ -1,4 +1,4 @@
-import VeRadio from "vue-easytable/packages/ve-radio";
+import VeRadio from "../../../../packages/ve-radio";
 import { COMPS_NAME, EMIT_EVENTS } from "../util/constant";
 import { clsName } from "../util";
 import emitter from "../../../src/mixins/emitter";
