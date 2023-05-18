@@ -1,6 +1,6 @@
 import { COMPS_NAME } from "./util/constant";
 import { clsName } from "./util/index";
-import VeIcon from "vue-easytable/packages/ve-icon";
+import VeIcon from "../../../packages/ve-icon";
 import { ICON_NAMES } from "../../src/utils/constant";
 import { getMousePosition, getViewportOffset } from "../../src/utils/dom";
 import { INIT_DATA, EMIT_EVENTS, CONTEXTMENU_TYPES } from "./util/constant";

@@ -1,4 +1,4 @@
-import VeCheckbox from "vue-easytable/packages/ve-checkbox";
+import VeCheckbox from "../../../../packages/ve-checkbox";
 import { COMPS_NAME, EMIT_EVENTS } from "../util/constant";
 import { clsName } from "../util";
 import emitter from "../../../src/mixins/emitter";

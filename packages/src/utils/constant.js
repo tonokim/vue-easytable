@@ -14,6 +14,9 @@ export const KEY_CODES = {
 
     DELETE: 46,
 
+    C: 67,
+    V: 86,
+
     F2: 113,
 };
 
