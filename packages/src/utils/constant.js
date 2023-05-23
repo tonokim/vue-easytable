@@ -16,6 +16,7 @@ export const KEY_CODES = {
 
     C: 67,
     V: 86,
+    F: 70,
 
     F2: 113,
 };

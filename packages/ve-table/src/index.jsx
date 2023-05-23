@@ -1014,6 +1014,9 @@ export default {
                             navigator.clipboard.writeText(currentRow[colKey]);
                             break;
                         }
+                        if ((ctrlKey || metaKey) && keyCode === KEY_CODES.F) {
+                            break;
+                        }
                         // enter text directly
                         if (isInputKeyCode(event)) {
                             this[INSTANCE_METHODS.START_EDITING_CELL]({
